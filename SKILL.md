@@ -5,7 +5,7 @@ description: Token-efficient Klipper printer host operations. Use when checking 
 
 # klipper-ops
 
-Version: `0.1.0`
+Version: `0.1.1`
 
 Use this skill to keep printer host diagnostics short, repeatable, and safe. It is for operations against printer-side services, Klipper `printer_data/config` mirrors, and host state, not for broad codebase architecture questions.
 
@@ -20,6 +20,7 @@ Out of scope: local slicer profiles, slicer app configuration, and non-printer-h
 - Push a verified local `printer_data/config` mirror back to the printer with an explicit `--yes`.
 - Run a focused Klipper config check before restarting after config edits.
 - Execute one-off SSH diagnostics through a consistent env and known-hosts setup.
+- Initialize a new printer workspace with env files, config directories, backups, and optional wrapper scripts.
 
 ## Bundled Scripts
 
@@ -56,6 +57,7 @@ Required: `PRINTER_HOST`. Common overrides: `PRINTER_NAME`, `PRINTER_USER`, `PRI
    - `scripts/backup-config.sh` before printer-side changes.
    - `scripts/pull-config.sh` or `scripts/pull-config-expanded.sh` before drift analysis.
    - `scripts/push-config.sh --yes` only after backup and local verification.
+   - `scripts/init-project.sh --host <host>` when starting a new printer workspace.
    Use `./scripts/...` when the printer repo has wrappers; otherwise use the resolved bundled script path.
 3. Treat printer network commands as host-network operations that may require approval outside sandbox.
 4. Keep command output bounded. Never start with full `systemctl status` or unbounded `journalctl`.

@@ -1,0 +1,12 @@
+.DS_Store
+
+# Local printer workspace state
+.env
+.klipper-ops.local.env
+.known_hosts
+backups/
+printer_data/
+
+# Local scratch
+*.log
+tmp/

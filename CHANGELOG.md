@@ -2,6 +2,20 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.1.1 - 2026-06-04
+
+### Added
+
+- Human-readable `README.md` with quick start, configuration, AI-agent integration snippets, script reference, and release contract.
+- `scripts/init-project.sh` for bootstrapping printer workspaces with env files, config directories, backups, and optional local wrappers.
+- Explicit use case for initializing a new printer workspace.
+- GitHub publication preparation guidance through README release and integration sections.
+- `.gitignore` entries for local printer env, known hosts, backups, and config mirrors.
+
+### Changed
+
+- Bumped skill version to `0.1.1` for publication documentation and project initialization support.
+
 ## 0.1.0 - 2026-06-04
 
 ### Added

@@ -15,4 +15,6 @@ This project owns a publishable Codex skill for token-efficient Klipper printer 
 5. Do not add slicer profile workflows to this skill.
 6. Keep use cases transparent in `SKILL.md` when adding or removing operational coverage.
 7. Maintain `VERSION` and granular `CHANGELOG.md` entries for every behavior, script, environment contract, or documentation change.
-8. Run skill validation and shell syntax checks after edits.
+8. Keep `README.md` human-readable and publication-oriented whenever setup, integration, or release behavior changes.
+9. Commit task changes before finishing, and keep the git tag for a release exactly equal to `VERSION`.
+10. Run skill validation and shell syntax checks after edits.
