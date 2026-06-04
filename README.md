@@ -17,13 +17,19 @@ Out of scope: slicer profiles, slicer app settings, firmware flashing, and broad
 
 ## Quick Start
 
-Clone or install this skill next to any printer workspace, then initialize the workspace:
+Install the skill into your AI-agent skills directory. For Codex and compatible skill loaders, keep the local folder name equal to the skill name: `klipper-ops`.
 
 ```bash
-git clone git@github.com:anton-kostryukov/klipper-ops-skill.git
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
+```
+
+Then initialize a printer workspace:
+
+```bash
 mkdir my-printer
 cd my-printer
-../klipper-ops-skill/scripts/init-project.sh --host printer.local --user pi --name my-printer --with-wrappers
+"${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops/scripts/init-project.sh" --host printer.local --user pi --name my-printer --with-wrappers
 ```
 
 Run the first compact check:
@@ -79,6 +85,13 @@ Add a short instruction file to any printer workspace so agents use the bounded 
 
 ### Codex / OpenAI Agents
 
+Install the repository as `klipper-ops` under the skills directory:
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
+```
+
 Create or extend `AGENTS.md`:
 
 ```markdown
@@ -95,7 +108,7 @@ For Klipper printer host operations, use `klipper-ops` before ad hoc SSH.
 
 ### Claude Code
 
-Create or extend `CLAUDE.md` with the same operational contract:
+Clone the repository anywhere stable, then create local wrappers in each printer workspace with `scripts/init-project.sh --with-wrappers`. Create or extend `CLAUDE.md` with the same operational contract:
 
 ```markdown
 Use `./scripts/status.sh`, `./scripts/ssh.sh`, `./scripts/pull-config.sh`,
@@ -105,7 +118,7 @@ host work. Keep outputs bounded and summarize relevant service/log state.
 
 ### Gemini CLI
 
-Create or extend `GEMINI.md`:
+Clone the repository anywhere stable, then initialize each printer workspace with `scripts/init-project.sh --with-wrappers`. Create or extend `GEMINI.md`:
 
 ```markdown
 When working on this printer repo, use the local `./scripts/*.sh` wrappers from
@@ -115,7 +128,7 @@ before pushing, and use bounded service/log commands.
 
 ### Cursor / Generic Agents
 
-Create `.cursor/rules/klipper-ops.md` or an equivalent project rule:
+Clone the repository anywhere stable, then initialize each printer workspace with `scripts/init-project.sh --with-wrappers`. Create `.cursor/rules/klipper-ops.md` or an equivalent project rule:
 
 ```markdown
 For printer host operations, prefer klipper-ops scripts over raw SSH. Keep

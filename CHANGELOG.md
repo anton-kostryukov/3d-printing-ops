@@ -9,6 +9,7 @@ All notable changes to `klipper-ops` are documented here.
 - Documented GitHub Flow with `main` as the primary branch.
 - Clarified that versions, git tags, and GitHub Releases are reserved for functional changes and bugfixes.
 - Clarified that documentation, repository metadata, topics, and process-only changes are committed without release artifacts unless they accompany functional release work.
+- Clarified AI-agent installation, including cloning the repository into a `klipper-ops` skill directory for Codex-compatible skill loaders.
 
 ## 0.1.4 - 2026-06-04
 
