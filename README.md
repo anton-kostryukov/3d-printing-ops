@@ -1,6 +1,6 @@
 # Klipper Ops Skill
 
-Plug-and-play Codex skill and shell toolkit for calm, bounded Klipper printer host operations.
+Plug-and-play AI-agent skill and shell toolkit for calm, bounded Klipper printer host operations.
 
 `klipper-ops` helps AI agents and humans work with printer hosts without drowning the thread in full `systemctl status` dumps, unbounded logs, or one-off SSH incantations. It focuses on the daily operations around Klipper, Moonraker, Mainsail/nginx, camera services, and `printer_data/config`.
 
@@ -142,4 +142,4 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 - Every behavior, script, environment contract, or documentation change gets a granular changelog entry.
 - Patch versions are for fixes/docs, minor versions are for backward-compatible features, and major versions are for breaking command or environment behavior.
 
-Current version: `0.1.2`.
+Current version: `0.1.3`.

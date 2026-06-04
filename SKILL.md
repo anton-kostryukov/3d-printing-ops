@@ -5,7 +5,7 @@ description: Token-efficient Klipper printer host operations. Use when checking 
 
 # klipper-ops
 
-Version: `0.1.2`
+Version: `0.1.3`
 
 Use this skill to keep printer host diagnostics short, repeatable, and safe. It is for operations against printer-side services, Klipper `printer_data/config` mirrors, and host state, not for broad codebase architecture questions.
 

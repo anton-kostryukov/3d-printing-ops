@@ -2,6 +2,13 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.1.3 - 2026-06-04
+
+### Changed
+
+- Made the README introduction tool-agnostic by describing the project as an AI-agent skill rather than a Codex-specific skill.
+- Updated the published GitHub repository description to avoid Codex-specific positioning.
+
 ## 0.1.2 - 2026-06-04
 
 ### Changed
