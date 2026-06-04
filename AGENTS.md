@@ -4,7 +4,7 @@ These instructions apply to the `klipper-ops` skill project.
 
 ## Purpose
 
-This project owns a publishable Codex skill for token-efficient Klipper printer host operations. It bundles reusable scripts for SSH, systemd snapshots, bounded logs, and `printer_data/config` backup/pull/push workflows.
+This project owns a publishable AI-agent skill for token-efficient Klipper printer host operations. It bundles reusable scripts for SSH, systemd snapshots, bounded logs, and `printer_data/config` backup/pull/push workflows.
 
 ## Editing Rules
 
@@ -16,5 +16,8 @@ This project owns a publishable Codex skill for token-efficient Klipper printer 
 6. Keep use cases transparent in `SKILL.md` when adding or removing operational coverage.
 7. Maintain `VERSION` and granular `CHANGELOG.md` entries for every behavior, script, environment contract, or documentation change.
 8. Keep `README.md` human-readable and publication-oriented whenever setup, integration, or release behavior changes.
-9. Commit task changes before finishing, and keep the git tag for a release exactly equal to `VERSION`.
-10. Run skill validation and shell syntax checks after edits.
+9. Use GitHub Flow with `main` as the primary branch.
+10. Commit task changes before finishing.
+11. Create version bumps, git tags, and GitHub Releases only for functional changes or bugfixes. Documentation, repository metadata, topics, and process-only changes do not get releases unless they accompany functional release work.
+12. Keep the git tag for a release exactly equal to `VERSION`.
+13. Run skill validation and shell syntax checks after edits.

@@ -138,8 +138,13 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 
 ## Release Contract
 
-- `VERSION`, `SKILL.md`, `CHANGELOG.md`, and the git tag must agree.
-- Every behavior, script, environment contract, or documentation change gets a granular changelog entry.
-- Patch versions are for fixes/docs, minor versions are for backward-compatible features, and major versions are for breaking command or environment behavior.
+- Use GitHub Flow: do work in short-lived branches, review through pull requests when practical, and land finished work on `main`.
+- `main` is the primary branch.
+- Push release tags from `main` only.
+- Create versions, git tags, and GitHub Releases only for functional changes or bugfixes.
+- Documentation, repository metadata, topics, and process-only changes are committed to `main` without a version bump, tag, or GitHub Release unless they accompany a functional release.
+- When a release is made, `VERSION`, `SKILL.md`, `README.md`, `CHANGELOG.md`, and the git tag must agree.
+- Keep granular changelog entries. Use `Unreleased` for non-release documentation, metadata, and process changes.
+- Bump patch for bugfixes, minor for backward-compatible functionality, and major for breaking command or environment behavior.
 
 Current version: `0.1.4`.
