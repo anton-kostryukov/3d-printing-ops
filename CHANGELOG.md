@@ -2,6 +2,12 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.1.4 - 2026-06-04
+
+### Changed
+
+- Expanded GitHub repository topics beyond Codex to cover generic AI agents and common agent tools: Claude Code, Gemini CLI, Cursor, OpenAI Agents, shell scripts, and Klipper ops.
+
 ## 0.1.3 - 2026-06-04
 
 ### Changed

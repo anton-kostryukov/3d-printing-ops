@@ -142,4 +142,4 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 - Every behavior, script, environment contract, or documentation change gets a granular changelog entry.
 - Patch versions are for fixes/docs, minor versions are for backward-compatible features, and major versions are for breaking command or environment behavior.
 
-Current version: `0.1.3`.
+Current version: `0.1.4`.
