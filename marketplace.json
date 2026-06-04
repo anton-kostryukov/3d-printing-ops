@@ -1,7 +1,7 @@
 {
-  "name": "klipper-ops-skill-marketplace",
-  "display_name": "Klipper Ops Skill Marketplace",
-  "description": "Single-skill marketplace for compact Klipper printer host operations.",
+  "name": "3d-printing-ops",
+  "display_name": "3D Printing Ops",
+  "description": "AI-agent skills for practical 3D printing operations. Currently includes Klipper printer host operations; additional printer and workflow skills can be added over time.",
   "skills": [
     {
       "id": "klipper-ops",
@@ -16,7 +16,7 @@
       "repoPath": "skills/klipper-ops",
       "source": {
         "type": "github",
-        "repo": "anton-kostryukov/klipper-ops-skill",
+        "repo": "anton-kostryukov/3d-printing-ops",
         "ref": "main",
         "path": "skills/klipper-ops"
       },

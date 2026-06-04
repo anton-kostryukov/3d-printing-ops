@@ -1,8 +1,8 @@
-# Klipper Ops Skill
+# 3D Printing Ops
 
-Plug-and-play AI-agent skill and shell toolkit for calm, bounded Klipper printer host operations.
+AI-agent skill marketplace for practical 3D printing operations.
 
-`klipper-ops` helps AI agents and humans work with printer hosts without drowning the thread in full `systemctl status` dumps, unbounded logs, or one-off SSH incantations. It focuses on the daily operations around Klipper, Moonraker, Mainsail/nginx, camera services, and `printer_data/config`.
+The marketplace currently ships one installable skill, `klipper-ops`, with a shell toolkit for calm, bounded Klipper printer host operations. It helps AI agents and humans work with printer hosts without drowning the thread in full `systemctl status` dumps, unbounded logs, or one-off SSH incantations. Future skills can cover adjacent 3D-printing ops workflows.
 
 ## What It Does
 
@@ -17,13 +17,13 @@ Out of scope: slicer profiles, slicer app settings, firmware flashing, and broad
 
 ## Quick Start
 
-Install the skill into your AI-agent skills directory. The repository is a one-skill marketplace; the installable skill lives at `skills/klipper-ops`.
+Install the skill into your AI-agent skills directory. The marketplace is named `3d-printing-ops`; the current installable skill lives at `skills/klipper-ops`.
 
 For Codex and compatible skill installers:
 
 ```bash
 # In Codex, ask skill-installer to install:
-# repo: anton-kostryukov/klipper-ops-skill
+# repo: anton-kostryukov/3d-printing-ops
 # path: skills/klipper-ops
 ```
 
@@ -32,8 +32,8 @@ Manual install:
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 tmpdir="$(mktemp -d)"
-git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "$tmpdir/klipper-ops-skill"
-cp -R "$tmpdir/klipper-ops-skill/skills/klipper-ops" "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
+git clone git@github.com:anton-kostryukov/3d-printing-ops.git "$tmpdir/3d-printing-ops"
+cp -R "$tmpdir/3d-printing-ops/skills/klipper-ops" "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
 ```
 
 Then initialize a printer workspace:
@@ -97,7 +97,7 @@ Add a short instruction file to any printer workspace so agents use the bounded 
 
 ## Marketplace Layout
 
-This repository is intentionally shaped as a one-skill marketplace:
+This repository is shaped as a small skill marketplace. It currently contains one installable skill:
 
 ```text
 marketplace.json
@@ -116,7 +116,7 @@ Install the skill path, not the repository root:
 
 ```bash
 # Ask skill-installer to install:
-# repo: anton-kostryukov/klipper-ops-skill
+# repo: anton-kostryukov/3d-printing-ops
 # path: skills/klipper-ops
 ```
 
