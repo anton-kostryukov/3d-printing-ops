@@ -1,4 +1,4 @@
-# Klipper Ops
+# Klipper Ops Skill
 
 Plug-and-play Codex skill and shell toolkit for calm, bounded Klipper printer host operations.
 
@@ -20,10 +20,10 @@ Out of scope: slicer profiles, slicer app settings, firmware flashing, and broad
 Clone or install this skill next to any printer workspace, then initialize the workspace:
 
 ```bash
-git clone git@github.com:anton-kostryukov/klipper-ops.git
+git clone git@github.com:anton-kostryukov/klipper-ops-skill.git
 mkdir my-printer
 cd my-printer
-../klipper-ops/scripts/init-project.sh --host printer.local --user pi --name my-printer --with-wrappers
+../klipper-ops-skill/scripts/init-project.sh --host printer.local --user pi --name my-printer --with-wrappers
 ```
 
 Run the first compact check:
@@ -142,4 +142,4 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 - Every behavior, script, environment contract, or documentation change gets a granular changelog entry.
 - Patch versions are for fixes/docs, minor versions are for backward-compatible features, and major versions are for breaking command or environment behavior.
 
-Current version: `0.1.1`.
+Current version: `0.1.2`.

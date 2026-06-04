@@ -2,6 +2,13 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.1.2 - 2026-06-04
+
+### Changed
+
+- Renamed the published GitHub repository to `klipper-ops-skill` so consumers can recognize it as a skill package.
+- Updated README clone and initialization examples to use `anton-kostryukov/klipper-ops-skill`.
+
 ## 0.1.1 - 2026-06-04
 
 ### Added
