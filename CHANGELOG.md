@@ -1,0 +1,31 @@
+# Changelog
+
+All notable changes to `klipper-ops` are documented here.
+
+## 0.1.0 - 2026-06-04
+
+### Added
+
+- Publishable `klipper-ops` skill metadata and concise operational workflow.
+- Transparent use cases for Klipper service checks, bounded logs, config mirrors, backups, pushes, config checks, and focused SSH diagnostics.
+- Bundled plug-and-play scripts:
+  - `scripts/status.sh`
+  - `scripts/ssh.sh`
+  - `scripts/backup-config.sh`
+  - `scripts/pull-config.sh`
+  - `scripts/pull-config-expanded.sh`
+  - `scripts/push-config.sh`
+  - `scripts/check-config.sh`
+  - `scripts/lib/printer-env.sh`
+- Workspace env loading from `.env`, `.klipper-ops.env`, and `.klipper-ops.local.env`.
+- Configurable `PRINTER_HOST`, `PRINTER_USER`, `PRINTER_REMOTE_CONFIG_DIR`, `PRINTER_SERVICES`, `SSH_ASKPASS_PATH`, and `KNOWN_HOSTS_PATH`.
+
+### Changed
+
+- Removed repository-layout assumptions from skill instructions.
+- Generalized the skill beyond any specific printer vendor or host naming scheme.
+- Clarified that slicer profile workflows are out of scope.
+
+### Fixed
+
+- Validated `PRINTER_SERVICES` before interpolating it into remote service snapshot commands.

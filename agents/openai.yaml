@@ -1,0 +1,4 @@
+interface:
+  display_name: "Klipper Ops"
+  short_description: "Plug-and-play scripts for compact Klipper host, systemd, journal, and config ops."
+  default_prompt: "Use klipper-ops bundled scripts to check printer host services with compact snapshots and bounded logs."
