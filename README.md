@@ -17,11 +17,23 @@ Out of scope: slicer profiles, slicer app settings, firmware flashing, and broad
 
 ## Quick Start
 
-Install the skill into your AI-agent skills directory. For Codex and compatible skill loaders, keep the local folder name equal to the skill name: `klipper-ops`.
+Install the skill into your AI-agent skills directory. The repository is a one-skill marketplace; the installable skill lives at `skills/klipper-ops`.
+
+For Codex and compatible skill installers:
+
+```bash
+# In Codex, ask skill-installer to install:
+# repo: anton-kostryukov/klipper-ops-skill
+# path: skills/klipper-ops
+```
+
+Manual install:
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
+tmpdir="$(mktemp -d)"
+git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "$tmpdir/klipper-ops-skill"
+cp -R "$tmpdir/klipper-ops-skill/skills/klipper-ops" "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
 ```
 
 Then initialize a printer workspace:
@@ -83,13 +95,29 @@ Use `.klipper-ops.local.env` for machine-local secrets or paths. Do not commit p
 
 Add a short instruction file to any printer workspace so agents use the bounded command surface.
 
+## Marketplace Layout
+
+This repository is intentionally shaped as a one-skill marketplace:
+
+```text
+marketplace.json
+skills/
+  klipper-ops/
+    SKILL.md
+    agents/openai.yaml
+    scripts/
+```
+
+Use `marketplace.json` for discovery and `skills/klipper-ops` as the installable skill path. The repository name includes `-skill` for clarity; the skill name remains `klipper-ops`.
+
 ### Codex / OpenAI Agents
 
-Install the repository as `klipper-ops` under the skills directory:
+Install the skill path, not the repository root:
 
 ```bash
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone git@github.com:anton-kostryukov/klipper-ops-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
+# Ask skill-installer to install:
+# repo: anton-kostryukov/klipper-ops-skill
+# path: skills/klipper-ops
 ```
 
 Create or extend `AGENTS.md`:
@@ -108,7 +136,7 @@ For Klipper printer host operations, use `klipper-ops` before ad hoc SSH.
 
 ### Claude Code
 
-Clone the repository anywhere stable, then create local wrappers in each printer workspace with `scripts/init-project.sh --with-wrappers`. Create or extend `CLAUDE.md` with the same operational contract:
+Clone the repository anywhere stable, then create local wrappers in each printer workspace with `skills/klipper-ops/scripts/init-project.sh --with-wrappers`. Create or extend `CLAUDE.md` with the same operational contract:
 
 ```markdown
 Use `./scripts/status.sh`, `./scripts/ssh.sh`, `./scripts/pull-config.sh`,
@@ -118,7 +146,7 @@ host work. Keep outputs bounded and summarize relevant service/log state.
 
 ### Gemini CLI
 
-Clone the repository anywhere stable, then initialize each printer workspace with `scripts/init-project.sh --with-wrappers`. Create or extend `GEMINI.md`:
+Clone the repository anywhere stable, then initialize each printer workspace with `skills/klipper-ops/scripts/init-project.sh --with-wrappers`. Create or extend `GEMINI.md`:
 
 ```markdown
 When working on this printer repo, use the local `./scripts/*.sh` wrappers from
@@ -128,7 +156,7 @@ before pushing, and use bounded service/log commands.
 
 ### Cursor / Generic Agents
 
-Clone the repository anywhere stable, then initialize each printer workspace with `scripts/init-project.sh --with-wrappers`. Create `.cursor/rules/klipper-ops.md` or an equivalent project rule:
+Clone the repository anywhere stable, then initialize each printer workspace with `skills/klipper-ops/scripts/init-project.sh --with-wrappers`. Create `.cursor/rules/klipper-ops.md` or an equivalent project rule:
 
 ```markdown
 For printer host operations, prefer klipper-ops scripts over raw SSH. Keep
@@ -140,14 +168,14 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 
 | Script | Purpose |
 | --- | --- |
-| `scripts/init-project.sh` | Create a printer workspace env, directories, and optional wrappers. |
-| `scripts/status.sh` | Compact host, service, and config directory snapshot. |
-| `scripts/ssh.sh` | Run a focused SSH command using workspace config. |
-| `scripts/pull-config.sh` | Pull remote `printer_data/config` into `printer_data/config`. |
-| `scripts/pull-config-expanded.sh` | Pull config while following symlinks into `printer_data/config-expanded`. |
-| `scripts/backup-config.sh` | Create a timestamped config backup under `backups/<printer>/`. |
-| `scripts/check-config.sh` | Run Klipper `check_config.py` against remote `printer.cfg`. |
-| `scripts/push-config.sh` | Upload local config mirror to the printer; requires `--yes`. |
+| `skills/klipper-ops/scripts/init-project.sh` | Create a printer workspace env, directories, and optional wrappers. |
+| `skills/klipper-ops/scripts/status.sh` | Compact host, service, and config directory snapshot. |
+| `skills/klipper-ops/scripts/ssh.sh` | Run a focused SSH command using workspace config. |
+| `skills/klipper-ops/scripts/pull-config.sh` | Pull remote `printer_data/config` into `printer_data/config`. |
+| `skills/klipper-ops/scripts/pull-config-expanded.sh` | Pull config while following symlinks into `printer_data/config-expanded`. |
+| `skills/klipper-ops/scripts/backup-config.sh` | Create a timestamped config backup under `backups/<printer>/`. |
+| `skills/klipper-ops/scripts/check-config.sh` | Run Klipper `check_config.py` against remote `printer.cfg`. |
+| `skills/klipper-ops/scripts/push-config.sh` | Upload local config mirror to the printer; requires `--yes`. |
 
 ## Release Contract
 
@@ -156,7 +184,7 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 - Push release tags from `main` only.
 - Create versions, git tags, and GitHub Releases only for functional changes or bugfixes.
 - Documentation, repository metadata, topics, and process-only changes are committed to `main` without a version bump, tag, or GitHub Release unless they accompany a functional release.
-- When a release is made, `VERSION`, `SKILL.md`, `README.md`, `CHANGELOG.md`, and the git tag must agree.
+- When a release is made, `VERSION`, `skills/klipper-ops/SKILL.md`, `marketplace.json`, `README.md`, `CHANGELOG.md`, and the git tag must agree.
 - Keep granular changelog entries. Use `Unreleased` for non-release documentation, metadata, and process changes.
 - Bump patch for bugfixes, minor for backward-compatible functionality, and major for breaking command or environment behavior.
 

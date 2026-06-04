@@ -1,0 +1,38 @@
+{
+  "name": "klipper-ops-skill-marketplace",
+  "display_name": "Klipper Ops Skill Marketplace",
+  "description": "Single-skill marketplace for compact Klipper printer host operations.",
+  "skills": [
+    {
+      "id": "klipper-ops",
+      "name": "klipper-ops",
+      "display_name": "Klipper Ops",
+      "description": "Token-efficient Klipper printer host operations with bundled scripts for compact systemd snapshots, bounded journal logs, SSH, and printer_data/config backup, pull, push, and validation workflows.",
+      "shortDescription": "Compact Klipper host ops with bounded logs and reusable scripts.",
+      "iconSmall": null,
+      "iconLarge": null,
+      "version": "0.1.4",
+      "path": "skills/klipper-ops",
+      "repoPath": "skills/klipper-ops",
+      "source": {
+        "type": "github",
+        "repo": "anton-kostryukov/klipper-ops-skill",
+        "ref": "main",
+        "path": "skills/klipper-ops"
+      },
+      "categories": [
+        "3d-printing",
+        "printer-ops",
+        "ai-agents"
+      ],
+      "tags": [
+        "klipper",
+        "moonraker",
+        "systemd",
+        "journalctl",
+        "ssh",
+        "3d-printing"
+      ]
+    }
+  ]
+}
