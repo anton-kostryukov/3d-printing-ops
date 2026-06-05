@@ -2,13 +2,15 @@
 
 All notable changes to `klipper-ops` are documented here.
 
-## Unreleased
+## 0.2.0 - 2026-06-05
 
 ### Changed
 
 - Documented GitHub Flow with `main` as the primary branch.
 - Clarified that versions, git tags, and GitHub Releases are reserved for functional changes and bugfixes.
 - Clarified that documentation, repository metadata, topics, and process-only changes are committed without release artifacts unless they accompany functional release work.
+- Clarified AI-agent installation, including cloning the repository into a `klipper-ops` skill directory for Codex-compatible skill loaders.
+- Reshaped and renamed the repository as the `3d-printing-ops` marketplace, currently containing the `klipper-ops` skill at canonical install path `skills/klipper-ops`.
 
 ## 0.1.4 - 2026-06-04
 
