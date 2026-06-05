@@ -2,7 +2,7 @@
 
 All notable changes to `klipper-ops` are documented here.
 
-## Unreleased
+## 0.2.0 - 2026-06-05
 
 ### Changed
 

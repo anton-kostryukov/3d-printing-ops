@@ -11,7 +11,7 @@
       "shortDescription": "Compact Klipper host ops with bounded logs and reusable scripts.",
       "iconSmall": null,
       "iconLarge": null,
-      "version": "0.1.4",
+      "version": "0.2.0",
       "path": "skills/klipper-ops",
       "repoPath": "skills/klipper-ops",
       "source": {

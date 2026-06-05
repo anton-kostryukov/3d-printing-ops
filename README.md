@@ -188,4 +188,4 @@ diagnostics compact: `systemctl show`, `systemctl is-active`, and
 - Keep granular changelog entries. Use `Unreleased` for non-release documentation, metadata, and process changes.
 - Bump patch for bugfixes, minor for backward-compatible functionality, and major for breaking command or environment behavior.
 
-Current version: `0.1.4`.
+Current version: `0.2.0`.
