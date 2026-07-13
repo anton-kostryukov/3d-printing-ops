@@ -7,17 +7,17 @@
       "id": "klipper-ops",
       "name": "klipper-ops",
       "display_name": "Klipper Ops",
-      "description": "Token-efficient Klipper printer host operations with bundled scripts for compact systemd snapshots, bounded journal logs, SSH, and printer_data/config backup, pull, push, and validation workflows.",
-      "shortDescription": "Compact Klipper host ops with bounded logs and reusable scripts.",
+      "description": "Safe, token-efficient Klipper printer host operations through typed MCP tools with portable shell fallbacks for status, bounded logs, config diff, backup, validation, atomic apply, rollback, and recovery.",
+      "shortDescription": "Typed Klipper MCP operations with safe portable fallbacks.",
       "iconSmall": null,
       "iconLarge": null,
-      "version": "0.2.0",
+      "version": "0.3.0",
       "path": "skills/klipper-ops",
       "repoPath": "skills/klipper-ops",
       "source": {
         "type": "github",
         "repo": "anton-kostryukov/3d-printing-ops",
-        "ref": "main",
+        "ref": "0.3.0",
         "path": "skills/klipper-ops"
       },
       "categories": [
@@ -31,6 +31,8 @@
         "systemd",
         "journalctl",
         "ssh",
+        "mcp",
+        "ai-agents",
         "3d-printing"
       ]
     }

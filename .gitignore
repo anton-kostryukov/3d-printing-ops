@@ -1,4 +1,8 @@
 .DS_Store
+.venv/
+graphify-out/
+__pycache__/
+*.pyc
 
 # Local printer workspace state
 .env
@@ -10,3 +14,4 @@ printer_data/
 # Local scratch
 *.log
 tmp/
+.klipper-ops/
