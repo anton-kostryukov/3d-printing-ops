@@ -2,6 +2,48 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.3.0 - 2026-07-13
+
+### Added
+
+- Added the installable `klipper-ops-mcp` Python 3.11+ stdio server using the stable MCP Python SDK 1.x line.
+- Added structured MCP tools for compact printer status, bounded service logs, remote config manifests, local/remote diffs, atomic pulls, backups, staged validation, two-phase config apply, allowlisted restarts, and backup restore.
+- Added expiring config apply plans with local/remote fingerprints, backup IDs, staged validation, drift detection, atomic directory replacement, service health checks, and automatic rollback.
+- Added `logs.sh` for bounded journal reads and `restart-service.sh` for confirmed, idle-gated service restarts when MCP is unavailable.
+- Added `skills/klipper-ops/references/mcp-tools.md` with the public tool contract, write gates, and refusal handling.
+- Added Python unit tests, shell contract tests, release metadata validation, and GitHub Actions CI.
+- Added an MIT license for publication and reuse.
+
+### Changed
+
+- Split responsibilities so the skill owns use-case selection, diagnostic order, confirmation policy, interpretation, and response shape while MCP owns typed execution and safety enforcement.
+- Made MCP the preferred operational surface while retaining bundled shell scripts as a plug-and-play fallback.
+- Changed dotenv precedence to `.env`, `.klipper-ops.env`, `.klipper-ops.local.env`, then exported process environment.
+- Made shell config pulls replace the local mirror atomically instead of overlaying existing files.
+- Changed shell config pushes to create a local backup, upload an isolated staging tree, run the configured Klipper checker, atomically replace the remote directory, and retain a remote rollback directory.
+- Made the Klipper checker path configurable with `PRINTER_KLIPPER_CHECK_SCRIPT` and systemd scope configurable with `PRINTER_SYSTEMCTL_SCOPE`.
+- Added `KLIPPER_OPS_SSH_TIMEOUT` and `KLIPPER_OPS_PLAN_TTL_SECONDS` environment contracts.
+- Changed generated wrappers to discover standard installations and support `KLIPPER_OPS_SKILL_DIR` overrides after relocation.
+- Changed shell backup metadata from sourceable `metadata.env` to inert `metadata.txt`; MCP backups use `metadata.json`.
+- Bounded the shell status config summary instead of listing every top-level config entry.
+- Pinned the marketplace skill source to release tag `0.3.0` instead of mutable `main`.
+- Reworked README installation and integration guidance for Codex, Claude Code, Gemini CLI, Cursor, and generic MCP clients.
+
+### Fixed
+
+- Stopped shell fallbacks from sourcing workspace env files as executable code.
+- Prevented deleted remote config files from lingering after pull operations.
+- Prevented shell pushes from silently overlaying a live remote config without mandatory backup, staging validation, or rollback material.
+- Removed the release-policy conflict that told skill consumers to bump versions for documentation-only changes.
+- Removed the stale README claim that the repository name includes `-skill`.
+
+### Security
+
+- Deliberately excluded arbitrary SSH execution and caller-selected remote paths from the MCP tool surface.
+- Restricted service operations to `PRINTER_SERVICES`, logs to bounded windows, local paths to the printer workspace, host/user values to validated character sets, and printer names to safe backup path components.
+- Refused config apply, restore, and restart while Moonraker reports an active or paused print.
+- Required reviewed plan hashes or explicit identifiers for write operations and explicit disclosure before unknown-print-state recovery overrides.
+
 ## 0.2.0 - 2026-06-05
 
 ### Changed

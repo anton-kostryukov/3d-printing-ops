@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install MCP server and tests
+        run: python -m pip install -e './mcp/klipper-ops-server[dev]'
+      - name: Validate release metadata and shell syntax
+        run: python scripts/validate-project.py
+      - name: Lint Python
+        run: ruff check mcp/klipper-ops-server && ruff format --check mcp/klipper-ops-server
+      - name: Lint shell fallback
+        run: shellcheck --severity=warning skills/klipper-ops/scripts/*.sh skills/klipper-ops/scripts/lib/*.sh tests/test-shell.sh
+      - name: Test shell fallback
+        run: bash tests/test-shell.sh
+      - name: Test MCP server
+        run: pytest mcp/klipper-ops-server

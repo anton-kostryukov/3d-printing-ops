@@ -1,136 +1,81 @@
 ---
 name: klipper-ops
-description: Token-efficient Klipper printer host operations. Use when checking or debugging printer-side systemd services, journal logs, Klipper, Moonraker, Mainsail/nginx, crowsnest, SSH status, printer_data/config pushes/pulls, backups, or other repeated printer maintenance commands; prefer compact service snapshots and bounded logs before verbose status dumps.
+description: Safe, token-efficient Klipper printer host operations through typed MCP tools with bundled shell fallbacks. Use for compact service health, bounded journal logs, Moonraker print state, printer_data/config manifests, diffs, pulls, backups, validation, staged config applies, rollback, allowlisted restarts, workspace initialization, or focused SSH recovery; do not use for slicer profiles or slicer app configuration.
 ---
 
 # klipper-ops
 
-Version: `0.2.0`
+Version: `0.3.0`
 
-Use this skill to keep printer host diagnostics short, repeatable, and safe. It is for operations against printer-side services, Klipper `printer_data/config` mirrors, and host state, not for broad codebase architecture questions.
-
-Out of scope: local slicer profiles, slicer app configuration, and non-printer-host profile sync workflows.
+Operate Klipper hosts through a small, auditable surface. Prefer the `klipper-ops`
+MCP server when connected; use bundled `scripts/` as a portable fallback.
 
 ## Use Cases
 
-- Check whether Klipper, Moonraker, web UI services, camera services, or other configured printer services are active without dumping full service status.
-- Read recent bounded logs for a named printer-side service while debugging startup, restart, config, or connectivity failures.
-- Pull `printer_data/config` into a workspace before comparing, reviewing, or editing printer configuration.
-- Back up remote `printer_data/config` before any printer-side push or risky service restart.
-- Push a verified local `printer_data/config` mirror back to the printer with an explicit `--yes`.
-- Run a focused Klipper config check before restarting after config edits.
-- Execute one-off SSH diagnostics through a consistent env and known-hosts setup.
-- Initialize a new printer workspace with env files, config directories, backups, and optional wrapper scripts.
+- Inspect host, Moonraker print, config, and allowlisted service state.
+- Read recent logs for one service with explicit time and line bounds.
+- Pull config mirrors atomically, including an expanded symlink-following mirror.
+- Compare local and remote config manifests without dumping full files.
+- Back up and validate config before any live change.
+- Prepare, review, and explicitly apply an atomic config plan with rollback.
+- Restart an allowlisted service only after confirmation and an idle-state check.
+- Restore a named backup with explicit backup-ID confirmation.
+- Initialize a printer workspace and shell wrappers.
+- Run focused raw SSH only when typed tools and bounded scripts cannot recover a host.
 
-## Bundled Scripts
+Out of scope: slicer profiles, slicer app settings, firmware flashing, and general
+printer tuning methodology.
 
-This skill ships plug-and-play scripts in `scripts/`. From a printer workspace, run the bundled script path directly:
+## Choose The Surface
 
-```bash
-/path/to/klipper-ops/scripts/status.sh
-/path/to/klipper-ops/scripts/ssh.sh 'systemctl is-active klipper moonraker nginx crowsnest 2>/dev/null || true'
-```
+1. Use MCP tools first. They return structured data, enforce bounds and allowlists,
+   and never expose arbitrary SSH execution or caller-selected remote paths.
+2. Use workspace `./scripts/*.sh` wrappers or bundled scripts when MCP is absent.
+3. Use `ssh.sh` only for a narrow recovery command. Do not turn it into an MCP tool.
 
-Repo scripts with the same names may wrap or override these. Prefer the repo script when it exists and is clearly printer-specific; otherwise use the bundled script.
+Read [references/mcp-tools.md](references/mcp-tools.md) when selecting tools or
+handling a write refusal.
 
-Printer settings come from the current printer workspace, not the skill. The scripts load, in order:
+## Workflow
 
-1. `.env`
-2. `.klipper-ops.env`
-3. `.klipper-ops.local.env`
+1. Check repo state, then call `get_printer_status` or `status.sh`.
+2. For a named failure, use `get_service_logs` or `logs.sh`; start with 15 minutes
+   and 120 lines.
+3. Before config analysis, call `pull_config` or the matching pull script.
+4. Before writes, create a backup and validate the candidate.
+5. For MCP writes, call `prepare_config_apply`, show the user its diff, backup ID,
+   validation result, and plan hash, then wait for explicit confirmation.
+6. Call `apply_config` only with that reviewed plan. It must recheck drift and print
+   state, atomically swap config, restart, health-check, and roll back on failure.
+7. Report changed state, backup ID/path, rollback path, and any remaining risk.
 
-Required: `PRINTER_HOST`. Common overrides: `PRINTER_NAME`, `PRINTER_USER`, `PRINTER_REMOTE_CONFIG_DIR`, `PRINTER_SERVICES`, `SSH_ASKPASS_PATH`, and `KNOWN_HOSTS_PATH`.
+Never restart or apply config while Moonraker reports `printing` or `paused`.
+Unknown print state requires a disclosed, explicit override and should be reserved
+for recovery when Moonraker is unavailable.
 
-## Versioning
+## Shell Fallback
 
-- Keep `VERSION` in sync with the version shown in this file.
-- Update `CHANGELOG.md` for every behavior, script, environment contract, or documentation change.
-- Use granular entries under Added, Changed, Fixed, Removed, and Security when applicable.
-- Bump patch for fixes/docs, minor for new backward-compatible scripts or env options, and major for breaking command or environment behavior.
+Scripts load `.env`, `.klipper-ops.env`, and `.klipper-ops.local.env` as dotenv
+data, then apply exported environment overrides. They do not execute those files.
 
-## Start Small
+| Script | Purpose |
+| --- | --- |
+| `status.sh` | Compact host and service snapshot. |
+| `logs.sh` | Bounded logs for an allowlisted service. |
+| `pull-config.sh` | Atomic config mirror refresh. |
+| `pull-config-expanded.sh` | Atomic expanded mirror refresh. |
+| `backup-config.sh` | Timestamped local config backup. |
+| `check-config.sh` | Remote Klipper config check. |
+| `push-config.sh --yes` | Backup, stage, validate, and atomically replace config. |
+| `restart-service.sh --yes SERVICE` | Idle-gated allowlisted restart. |
+| `init-project.sh --host HOST` | Initialize a printer workspace. |
+| `ssh.sh COMMAND` | Focused recovery-only SSH fallback. |
 
-1. Check local repo state before changing files.
-2. Prefer existing repo scripts over ad hoc SSH:
-   - `scripts/status.sh` for a quick host/service/`printer_data/config` snapshot.
-   - `scripts/ssh.sh '<remote command>'` for focused remote checks.
-   - `scripts/backup-config.sh` before printer-side changes.
-   - `scripts/pull-config.sh` or `scripts/pull-config-expanded.sh` before drift analysis.
-   - `scripts/push-config.sh --yes` only after backup and local verification.
-   - `scripts/init-project.sh --host <host>` when starting a new printer workspace.
-   Use `./scripts/...` when the printer repo has wrappers; otherwise use the resolved bundled script path.
-3. Treat printer network commands as host-network operations that may require approval outside sandbox.
-4. Keep command output bounded. Never start with full `systemctl status` or unbounded `journalctl`.
-
-## Typical Flow
-
-1. Inspect repo state and relevant local files.
-2. Run `scripts/status.sh` for orientation, or a narrower `scripts/ssh.sh` command if the user names a symptom.
-3. For Klipper `printer_data/config` work, pull the remote mirror before comparing or editing; back up before pushing.
-4. Verify with the smallest check that proves the operation worked: service active state, `journalctl -n`, config test, or focused file diff.
-5. Report only changed state, backup path, and the next risky command if one remains.
-
-## Compact Service Snapshot
-
-For service health, use `systemctl show` fields instead of verbose status:
-
-```bash
-scripts/ssh.sh 'for s in klipper moonraker nginx crowsnest; do echo "== $s =="; systemctl show "$s" --no-pager -p Id -p LoadState -p ActiveState -p SubState -p MainPID -p ExecMainStatus -p NRestarts -p FragmentPath 2>/dev/null || true; done'
-```
-
-If only active/inactive matters:
-
-```bash
-scripts/ssh.sh 'systemctl is-active klipper moonraker nginx crowsnest 2>/dev/null || true'
-```
-
-For restarts, check state before and after, and read bounded logs only if the service does not settle:
-
-```bash
-scripts/ssh.sh 'sudo systemctl restart klipper && systemctl is-active klipper'
-```
-
-## Bounded Logs
-
-Read recent logs only, with a reason and a service name:
-
-```bash
-scripts/ssh.sh 'journalctl -u klipper --since "15 min ago" -n 120 --no-pager'
-scripts/ssh.sh 'journalctl -u moonraker --since "15 min ago" -n 120 --no-pager'
-```
-
-Increase to `-n 300` only when the first sample shows truncation around the failure. Do not paste or request full historical logs unless the user asks for a deep incident review.
-
-## Config And Backup Rules
-
-- Before pushing to the printer, run `scripts/backup-config.sh` and report the created backup path.
-- Use `scripts/pull-config.sh` or `scripts/pull-config-expanded.sh` to refresh mirrors before analyzing remote drift.
-- For local file inspection, use `rg`, `sed -n`, and focused paths. Avoid reading whole expanded configs unless a section range is known.
-- Before restart after config edits, prefer a Klipper config check when available:
-
-```bash
-scripts/check-config.sh
-```
-
-- If the command is missing or fails due local printer layout, fall back to a focused restart plus bounded `journalctl -u klipper --since "5 min ago" -n 120 --no-pager`.
-
-## Drift And File Questions
-
-- Compare local mirrors with normal repo tools first: `git diff -- printer_data/config`, `rg`, and `sed -n`.
-- Use expanded config only for include resolution, macro lookup, or confirming effective values.
-- When a change touches reusable scripts or agent rules, keep the publication contract generic and document only portable behavior.
-
-## Escalation Pattern
-
-When sandbox blocks mDNS/SSH/printer networking, rerun the same scoped command with approval. Keep approvals narrow: prefer `scripts/status.sh`, `scripts/ssh.sh`, `scripts/backup-config.sh`, `scripts/pull-config.sh`, or `scripts/push-config.sh --yes` over broad shells.
+Printer-specific hostnames, credentials, and nonstandard paths belong in the
+workspace environment files, never in this skill.
 
 ## Response Shape
 
-Report:
-
-- service states that matter;
-- the smallest relevant log excerpt summary, not full logs;
-- backup path when created;
-- exact next command only when it is needed.
-
-Keep raw command output out of the final response unless the user explicitly asks for it.
+Summarize service/print state, relevant bounded log evidence, config diff counts,
+backup and rollback identifiers, and the next risky action. Keep raw dumps out of
+the response unless the user asks for them.
