@@ -36,6 +36,7 @@ All notable changes to `klipper-ops` are documented here.
 - Made workspace initialization validate inputs before writing and create ignores for private connection/config/backup/transaction data.
 - Documented joint skill/MCP installation, upgrade requirements, runtime-check limits, supported platforms, and host prerequisites.
 - Expanded release validation to check skill metadata and the skill/MCP packaging boundary.
+- Added explicit repository-level Ruff settings so auxiliary scripts use the same lint rules locally and in CI.
 
 ## 0.3.0 - 2026-07-13
 

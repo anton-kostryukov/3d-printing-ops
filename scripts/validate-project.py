@@ -10,7 +10,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -77,9 +76,7 @@ if "$klipper-ops" not in interface["interface"]["default_prompt"]:
     fail("default prompt must explicitly reference the skill")
 
 changelog = (ROOT / "CHANGELOG.md").read_text()
-if not re.search(
-    r"^## " + re.escape(version) + r" - \d{4}-\d{2}-\d{2}$", changelog, re.M
-):
+if not re.search(r"^## " + re.escape(version) + r" - \d{4}-\d{2}-\d{2}$", changelog, re.MULTILINE):
     fail("CHANGELOG.md must include a dated entry for VERSION")
 
 print(f"project validation passed for {version}")
