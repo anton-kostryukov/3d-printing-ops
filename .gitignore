@@ -3,6 +3,10 @@
 graphify-out/
 __pycache__/
 *.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
 
 # Local printer workspace state
 .env
@@ -15,3 +19,4 @@ printer_data/
 *.log
 tmp/
 .klipper-ops/
+.ssh_askpass*

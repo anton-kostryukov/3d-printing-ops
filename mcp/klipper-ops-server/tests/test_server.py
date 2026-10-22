@@ -25,8 +25,30 @@ def test_public_tool_surface_has_no_arbitrary_ssh() -> None:
         "restart_service",
         "restore_backup",
         "validate_config",
+        "discard_config_apply",
+        "recover_config",
     }
     assert "ssh" not in names
+    by_name = {tool.name: tool for tool in tools}
+    assert by_name["get_printer_status"].annotations.readOnlyHint is True
+    assert by_name["apply_config"].annotations.destructiveHint is True
+
+
+def test_skill_launcher_recommends_installing_companion_when_missing(tmp_path) -> None:
+    import os
+    import subprocess
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[3]
+    result = subprocess.run(
+        [sys.executable, "-S", str(root / "skills/klipper-ops/scripts/ops.py"), "status"],
+        env={"PATH": str(tmp_path), "HOME": os.environ["HOME"]},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 1
+    assert "Install the Klipper Ops MCP package" in result.stderr
 
 
 def test_stdio_server_handshake_and_tool_discovery() -> None:

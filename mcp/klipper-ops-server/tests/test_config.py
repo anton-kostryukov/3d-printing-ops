@@ -10,6 +10,7 @@ from klipper_ops_mcp.config import ENV_KEYS, ConfigError, load_config, parse_env
 def clear_config_env(monkeypatch: pytest.MonkeyPatch) -> None:
     for key in ENV_KEYS | {"KLIPPER_OPS_PROJECT_ROOT"}:
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("PRINTER_USER", "pi")
 
 
 def test_env_files_are_parsed_as_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -77,4 +78,40 @@ def test_printer_name_cannot_escape_backup_directory(
     monkeypatch.setenv("PRINTER_NAME", "../outside")
 
     with pytest.raises(ConfigError, match="safe path component"):
+        load_config(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "key,value",
+    [
+        ("PRINTER_HOST", "-oProxyCommand=bad"),
+        ("PRINTER_SERVICES", "klipper --all"),
+        ("PRINTER_REMOTE_CONFIG_DIR", "/"),
+        ("PRINTER_REMOTE_CONFIG_DIR", "/home/pi/printer_data/config/.."),
+        ("KLIPPER_OPS_HEALTH_TIMEOUT", "0"),
+    ],
+)
+def test_invalid_operational_settings_fail_before_network(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    key: str,
+    value: str,
+) -> None:
+    clear_config_env(monkeypatch)
+    monkeypatch.setenv("PRINTER_HOST", "printer.local")
+    monkeypatch.setenv(key, value)
+    with pytest.raises(ConfigError):
+        load_config(tmp_path)
+
+
+def test_root_user_home_and_alias_home_are_explicit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_config_env(monkeypatch)
+    monkeypatch.setenv("PRINTER_HOST", "printer.local")
+    monkeypatch.setenv("PRINTER_USER", "root")
+    assert load_config(tmp_path).remote_config_dir == "/root/printer_data/config"
+    monkeypatch.delenv("PRINTER_USER")
+    with pytest.raises(ConfigError, match="PRINTER_REMOTE_HOME"):
         load_config(tmp_path)

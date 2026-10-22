@@ -2,6 +2,42 @@
 
 All notable changes to `klipper-ops` are documented here.
 
+## 0.4.0 - 2026-10-22
+
+### Fixed
+
+- Replaced the nonexistent default `scripts/check_config.py` dependency with syntax/include checks through the printer's installed `klippy/configfile.py`, without starting Klippy or accessing an MCU.
+- Required Moonraker Klipper `ready` after config restarts; `systemd active` alone no longer reports a broken printer as healthy.
+- Made CLI config writes use the same print-state, validation, confirmation, drift, restart, and rollback gates as MCP tools.
+- Restricted pull destinations to dedicated mirrors and refused overwriting local edits unless explicitly requested.
+- Preserved the printer's `.git` entry during config replacement while excluding Git metadata and macOS sidecars consistently from snapshots, diffs, and fingerprints.
+- Preserved absolute external symlinks as inert archive entries without permitting writes through them; rejected new or changed external links in candidates.
+- Rechecked candidate fingerprints and remote drift inside a remote lock immediately before replacement; serialized local workspace mutations.
+- Verified backup identity and content before restore, bound plans to SSH user/service/scope/origin as well as host, checked plan integrity, and prevented plan replay after uncertain outcomes.
+- Corrected root-user home defaults, rejected option-like SSH hosts and systemd units, normalized remote paths, and required an explicit user or remote home for SSH aliases.
+- Made every shell file receive a separate syntax check; the previous single `bash -n` invocation only checked the first script.
+
+### Added
+
+- Added durable remote transaction journals, interruption-aware rollback, `recover_config`, and `discard_config_apply` tools.
+- Added bounded review patches, archive size/file-count limits, atomic JSON records, and explicit recovery guidance after transport timeouts.
+- Added the `klipper-ops` CLI to the MCP package and new prepare/discard/restore/recover launchers distributed with the skill.
+- Added `PRINTER_KLIPPER_DIR`, `PRINTER_KLIPPER_SERVICE`, `PRINTER_MOONRAKER_URL`, `KLIPPER_OPS_HEALTH_TIMEOUT`, and `KLIPPER_OPS_CLI` configuration options.
+- Added executable integration tests with a local Moonraker/systemd simulator, actual remote-worker subprocesses, MCP calls, copied-skill launchers, and a commit-pinned official Klipper parser.
+- Added source-distribution and wheel-installation checks, Python 3.11/3.12 coverage, and a project review record.
+
+### Changed
+
+- Kept skill instructions and MCP runtime as separate components in this repository. The skill recommends installing the companion MCP when tools are absent, then uses them for its workflows.
+- Removed the duplicate Bash execution/env implementation; bundled shell scripts now launch the CLI installed by the separate MCP package.
+- `push-config.sh` now requires `--plan HASH --yes` and performs a checked Klipper restart. `check-config.sh` accepts a local candidate directory.
+- Described config replacement accurately as a recoverable transaction using two renames, rather than a globally atomic filesystem exchange.
+- Made MCP bind its printer configuration for the server session; reconnect after workspace env changes.
+- Made workspace initialization validate inputs before writing and create ignores for private connection/config/backup/transaction data.
+- Documented joint skill/MCP installation, upgrade requirements, runtime-check limits, supported platforms, and host prerequisites.
+- Expanded release validation to check skill metadata and the skill/MCP packaging boundary.
+- Added explicit repository-level Ruff settings so auxiliary scripts use the same lint rules locally and in CI.
+
 ## 0.3.0 - 2026-07-13
 
 ### Added

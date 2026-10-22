@@ -1,110 +1,198 @@
 # 3D Printing Ops
 
-An AI-agent skill marketplace for practical 3D-printing operations.
+Practical 3D printer operations for AI agents and humans.
 
-The marketplace currently ships `klipper-ops`: a tool-agnostic skill plus a
-local MCP server and portable shell fallbacks for calm, bounded Klipper host
-work. The skill teaches an agent when and why to act; MCP performs typed printer
-operations with explicit safety gates.
+This marketplace currently contains one skill, **klipper-ops**. It combines a
+concise operational workflow and a separate local MCP server, used together.
+The skill recommends installing the companion MCP and explains the operational
+scenarios. The MCP package owns execution and also provides a CLI for recovery.
 
-## Why Skill And MCP
+## What You Can Do
 
-```mermaid
-flowchart LR
-    U["User"] --> A["AI agent"]
-    A --> S["klipper-ops skill<br/>workflow and policy"]
-    S --> M["Klipper Ops MCP<br/>typed operations"]
-    S --> F["shell fallback<br/>portable recovery"]
-    M --> H["Klipper host"]
-    F --> H
-```
+- Inspect Klipper host services and Moonraker print state.
+- Read bounded logs for an allowlisted service.
+- Pull config snapshots, compare changes, and keep verified backups.
+- Prepare a config change, review its patch, then apply it explicitly.
+- Check Klipper readiness after restart and restore the previous tree on failure.
+- Recover an interrupted transaction or restore a verified backup.
 
-| Layer | Owns |
+Slicer profiles, slicer settings, firmware flashing, and print motion commands
+are outside this skill's scope.
+
+## How It Fits Together
+
+| Component | Responsibility |
 | --- | --- |
-| Skill | Use cases, diagnostic order, confirmation policy, interpretation, and response shape. |
-| MCP | Config parsing, SSH transport, structured output, bounds, allowlists, staging, atomic apply, health checks, and rollback. |
-| Shell fallback | Plug-and-play operation when MCP is unavailable, plus focused recovery SSH. |
+| Skill | Use cases, diagnostic order, interpretation, and user approval of changes. |
+| MCP package and its CLI | Configuration, SSH, snapshots, validation, locks, transactions, and recovery. |
+| Workspace | Printer connection settings, config mirrors, backups, and operation records. |
 
-There is intentionally no arbitrary SSH MCP tool. Raw `ssh.sh` stays a visible,
-local fallback for unusual recovery work.
+Install the skill and its companion MCP separately. The skill detects missing MCP
+tools and recommends their installation; it does not silently install or register
+the server. Small scripts shipped with the skill launch the CLI from the MCP
+package. Raw SSH is available only as an explicit CLI recovery command.
 
-## Capabilities
+## Install
 
-- Compact host, Moonraker print, config, and systemd service state.
-- Bounded logs for one allowlisted service.
-- Remote config manifests and local/remote diffs.
-- Atomic config pulls that remove stale local files.
-- Timestamped backups and isolated Klipper config validation.
-- Two-phase config changes: prepare and review, then explicitly apply.
-- Atomic remote directory swap, service health check, and automatic rollback.
-- Idle-gated allowlisted service restarts and named backup restores.
-- Portable workspace initialization and shell wrappers.
+Requirements: macOS or Linux, local Python 3.11+, OpenSSH, and network access to
+the printer. The printer host needs Linux/systemd, Python 3.8+, its Klipper
+checkout, and Moonraker. Use SSH keys or an SSH agent; an explicit askpass helper
+is also supported. System service restarts require passwordless, narrowly scoped
+sudo access, unless the SSH user is root. User services use systemctl --user.
 
-Out of scope: slicer profiles, slicer application settings, firmware flashing,
-and broad printer-tuning methodology.
+### Skill
 
-## Quick Start
-
-### 1. Install The Skill
-
-Ask a compatible skill installer for:
+Use a compatible skill installer with:
 
 ```text
 repo: anton-kostryukov/3d-printing-ops
 path: skills/klipper-ops
-ref: 0.3.0
+ref: 0.4.0
 ```
 
-Manual install:
+Or install manually:
 
 ```bash
-git clone --branch 0.3.0 https://github.com/anton-kostryukov/3d-printing-ops.git
+git clone --branch 0.4.0 https://github.com/anton-kostryukov/3d-printing-ops.git
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 cp -R 3d-printing-ops/skills/klipper-ops "${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
 ```
 
-Other agents can keep `skills/klipper-ops` in any stable skills directory. The
-skill itself has no dependency on Codex.
+The destination above is an example for Codex. Other agents can install the
+same skill folder in their own skills directory.
 
-### 2. Install The MCP Server
+### MCP Server
 
-Install the release-pinned Python package with your preferred isolated tool:
+Install the companion package from its dedicated directory:
 
 ```bash
-pipx install "git+https://github.com/anton-kostryukov/3d-printing-ops.git@0.3.0#subdirectory=mcp/klipper-ops-server"
-# or
-uv tool install "git+https://github.com/anton-kostryukov/3d-printing-ops.git@0.3.0#subdirectory=mcp/klipper-ops-server"
+pipx install "git+https://github.com/anton-kostryukov/3d-printing-ops.git@0.4.0#subdirectory=mcp/klipper-ops-server"
+# Alternative:
+uv tool install "git+https://github.com/anton-kostryukov/3d-printing-ops.git@0.4.0#subdirectory=mcp/klipper-ops-server"
 ```
 
-The server requires Python 3.11+ and provides the `klipper-ops-mcp` command. It
-uses the stable MCP Python SDK 1.x line and pins `<2` to avoid an implicit major
-upgrade.
+This installs both klipper-ops and klipper-ops-mcp. Runtime code resides only in
+mcp/klipper-ops-server; the installable skill remains at skills/klipper-ops.
 
-### 3. Initialize A Printer Workspace
+## Initialize A Printer Workspace
 
 ```bash
-mkdir my-printer
-cd my-printer
 export KLIPPER_OPS_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/klipper-ops"
 "$KLIPPER_OPS_SKILL_DIR/scripts/init-project.sh" \
-  --host printer.local \
-  --user pi \
-  --name my-printer \
-  --with-wrappers
-```
-
-Run a shell-fallback check:
-
-```bash
+  --host printer.local --user pi --name my-printer \
+  --with-wrappers ./my-printer
+cd my-printer
 ./scripts/status.sh
 ./scripts/logs.sh klipper 15 120
 ./scripts/pull-config.sh
 ```
 
-## Connect An AI Agent
+Initialization preserves existing settings and wrappers. It creates a workspace
+.gitignore for private env files, host keys, backups, config mirrors, and
+transaction records. For SSH aliases without an explicit user, pass
+--remote-home with the actual remote home directory.
 
-Run one MCP server per printer workspace. Give it an absolute workspace path via
-`KLIPPER_OPS_PROJECT_ROOT`.
+## A Config Change From Start To Finish
+
+Pull once before editing. Then edit the local mirror, prepare a plan, review its
+patch and backup location, and apply that exact plan:
+
+```bash
+./scripts/prepare-config.sh
+# Inspect the returned patch, validation scope, backup path, and plan_hash.
+./scripts/push-config.sh --plan <plan_hash> --yes
+```
+
+Applying a plan restarts the configured Klipper service. The operation checks
+that the printer is idle, that the remote config and staged tree still match the
+reviewed fingerprints, and that the service and Klipper become ready. A failed
+restart or readiness check restores the previous config and checks recovery.
+
+Directory replacement uses two renames under a remote lock and a durable
+transaction journal. This is a recoverable transaction, not a filesystem-wide
+atomic exchange. The old tree remains available as a rollback directory after a
+successful apply. A killed process or lost SSH connection can leave an uncertain
+outcome: inspect status before retrying and use recovery if the journal reports
+an interrupted transaction.
+
+```bash
+./scripts/status.sh
+./scripts/recover-config.sh --yes
+# Discard an unused or expired plan:
+./scripts/discard-config.sh <plan_hash>
+# Restore an identified backup:
+./scripts/restore-backup.sh <backup_id> --yes
+```
+
+An active or paused print always blocks apply, restart, recovery, and restore.
+Unknown print state also blocks writes. The explicit recovery flag
+--allow-unknown-print-state permits a write when Moonraker is unavailable, but a
+config apply still has to pass the post-restart Klipper readiness check.
+
+### Validation Limits
+
+The default validator uses ConfigFileReader from the printer's installed
+klippy/configfile.py to check syntax and include resolution. It does not start
+Klippy, open MCU serial devices, or prove pin and hardware compatibility.
+Full runtime acceptance is checked through Moonraker after restart.
+An optional custom checker is supported through PRINTER_KLIPPER_CHECK_SCRIPT;
+its successful exit is only a preflight check.
+
+Absolute and relative symlinks are preserved as inert snapshot entries. Existing
+external links may be retained, but new or changed external links are rejected.
+Absolute includes inside the live config root are redirected to the candidate
+during validation. Expanded pulls are for inspection and should not be used as
+upload sources.
+
+## Configure
+
+Both interfaces parse these files as data, without shell execution or variable
+expansion, in the following order:
+
+1. .env
+2. .klipper-ops.env
+3. .klipper-ops.local.env
+4. exported environment variables, which take precedence
+
+```dotenv
+PRINTER_HOST=printer.local
+PRINTER_USER=pi
+PRINTER_NAME=my-printer
+PRINTER_REMOTE_CONFIG_DIR=/home/pi/printer_data/config
+PRINTER_KLIPPER_DIR=/home/pi/klipper
+PRINTER_KLIPPER_SERVICE=klipper
+PRINTER_SERVICES="klipper moonraker nginx crowsnest"
+PRINTER_SYSTEMCTL_SCOPE=system
+PRINTER_MOONRAKER_URL=http://127.0.0.1:7125
+KNOWN_HOSTS_PATH=.known_hosts
+KLIPPER_OPS_SSH_TIMEOUT=30
+KLIPPER_OPS_HEALTH_TIMEOUT=30
+KLIPPER_OPS_PLAN_TTL_SECONDS=3600
+```
+
+Moonraker URLs are resolved **on the printer host**. Relative local paths are
+resolved from the workspace. Set PRINTER_REMOTE_HOME when the SSH login uses a
+nonstandard home; root defaults to /root. Set PRINTER_KLIPPER_DIR when Klipper is
+installed elsewhere, and include PRINTER_KLIPPER_SERVICE in PRINTER_SERVICES.
+
+SSH_ASKPASS_PATH must point to an explicitly configured executable; it is never
+autodiscovered. KLIPPER_OPS_PYTHON selects the local Python executable used by
+shell launchers. KLIPPER_OPS_CLI selects the companion CLI when it is outside PATH.
+Generated workspace wrappers discover the CLI and retain an installation fallback.
+Restart an MCP server after changing its workspace settings;
+a running server keeps its initial printer configuration.
+
+Pulls write only to printer_data/config or printer_data/config-expanded. They
+refuse to overwrite local edits unless --overwrite is explicitly supplied.
+Backups and plans use content fingerprints and printer identity. Git metadata and
+macOS sidecar files are excluded from snapshots and diffs; the remote .git entry
+is preserved during apply. Snapshots are limited to 10,000 entries, 64 MiB
+uncompressed, and 32 MiB compressed.
+
+## AI Agent Integration
+
+Run one local stdio MCP server per printer workspace and pass an absolute
+KLIPPER_OPS_PROJECT_ROOT.
 
 ### Codex
 
@@ -129,10 +217,9 @@ gemini mcp add klipper-ops klipper-ops-mcp \
   --env KLIPPER_OPS_PROJECT_ROOT=/absolute/path/to/my-printer
 ```
 
-### Cursor And Generic MCP Clients
+### Cursor And Other MCP Clients
 
-Create `.cursor/mcp.json`, `.gemini/settings.json`, `.mcp.json`, or the client’s
-equivalent stdio configuration:
+Use the client's stdio configuration, such as .cursor/mcp.json:
 
 ```json
 {
@@ -148,108 +235,68 @@ equivalent stdio configuration:
 }
 ```
 
-Add a project rule (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or Cursor rule) with a
-small policy:
+Add the operational policy to AGENTS.md, CLAUDE.md, GEMINI.md, or a project rule:
 
-```markdown
-Use the klipper-ops skill and MCP tools for printer host work. Start with compact
-status or bounded logs. Before config writes, prepare a plan, show its diff and
-backup ID, and wait for explicit user confirmation before applying it. Never
-restart or apply while a print is active.
-```
+> Use klipper-ops for printer host work. Start with compact status and bounded
+> logs. Review local edits before pulling. Prepare config changes, show the patch,
+> validation scope and backup, then obtain user approval before applying the plan.
+> After an uncertain result, inspect the transaction before retrying.
 
-## Configuration
+## Tools And Commands
 
-Printer settings live in the printer workspace. Both MCP and shell fallbacks
-read these files as dotenv data, without executing shell code:
-
-1. `.env`
-2. `.klipper-ops.env`
-3. `.klipper-ops.local.env`
-4. exported process environment, which has final precedence
-
-Minimum configuration:
-
-```bash
-PRINTER_HOST="printer.local"
-PRINTER_USER="pi"
-```
-
-Common overrides:
-
-```bash
-PRINTER_NAME="my-printer"
-PRINTER_REMOTE_CONFIG_DIR="/home/pi/printer_data/config"
-PRINTER_KLIPPER_CHECK_SCRIPT="/home/pi/klipper/scripts/check_config.py"
-PRINTER_SERVICES="klipper moonraker nginx crowsnest"
-PRINTER_SYSTEMCTL_SCOPE="system"
-KNOWN_HOSTS_PATH=".known_hosts"
-SSH_ASKPASS_PATH="/absolute/path/to/askpass.sh"
-KLIPPER_OPS_SSH_TIMEOUT="30"
-KLIPPER_OPS_PLAN_TTL_SECONDS="3600"
-```
-
-Use `.klipper-ops.local.env` for machine-local paths. Do not commit passwords,
-private keys, askpass scripts, backups, or printer config mirrors containing
-secrets.
-
-## MCP Tools
-
-| Tool | Purpose |
+| MCP tool | Bundled command |
 | --- | --- |
-| `get_printer_status` | Structured host, print, config, and service snapshot. |
-| `get_service_logs` | Bounded logs for one allowlisted service. |
-| `get_config_manifest` | Remote manifest and fingerprint. |
-| `diff_config` | Local/remote added, modified, and deleted paths. |
-| `pull_config` | Atomic local mirror refresh. |
-| `backup_config` | Local backup with JSON metadata. |
-| `validate_config` | Isolated staged Klipper config check. |
-| `prepare_config_apply` | Backup, diff, stage, validate, and create an expiring plan. |
-| `apply_config` | Confirmed atomic apply, restart, health check, and rollback. |
-| `restart_service` | Confirmed idle-gated allowlisted restart. |
-| `restore_backup` | Confirmed restore of a named backup. |
+| get_printer_status | status.sh |
+| get_service_logs | logs.sh SERVICE [MINUTES] [LINES] |
+| get_config_manifest / diff_config | ops.py diff |
+| pull_config | pull-config.sh / pull-config-expanded.sh |
+| backup_config | backup-config.sh |
+| validate_config | check-config.sh [LOCAL_CONFIG_DIR] |
+| prepare_config_apply | prepare-config.sh [LOCAL_CONFIG_DIR] |
+| apply_config | push-config.sh --plan HASH --yes |
+| discard_config_apply | discard-config.sh HASH |
+| restart_service | restart-service.sh --yes SERVICE |
+| restore_backup | restore-backup.sh BACKUP_ID --yes |
+| recover_config | recover-config.sh --yes |
 
-Write tools reject active prints. Unknown print state also blocks writes unless the
-user explicitly approves the recovery-only override.
+The direct CLI is also available as python3 /path/to/skill/scripts/ops.py COMMAND.
+ssh.sh accepts one explicitly quoted recovery command and is not exposed by MCP.
 
-## Shell Fallback
+## Upgrade From 0.3.x
 
-| Script | Purpose |
-| --- | --- |
-| `init-project.sh` | Create workspace env, directories, and wrappers. |
-| `status.sh` | Compact systemd and config snapshot. |
-| `logs.sh` | Bounded service logs. |
-| `pull-config.sh` | Atomic config mirror refresh. |
-| `pull-config-expanded.sh` | Atomic expanded mirror refresh. |
-| `backup-config.sh` | Timestamped config backup. |
-| `check-config.sh` | Focused remote Klipper config check. |
-| `push-config.sh --yes` | Backup, stage, validate, and atomically replace config. |
-| `restart-service.sh --yes SERVICE` | Idle-gated service restart. |
-| `ssh.sh` | Focused recovery-only SSH command. |
+- Reinstall the separate MCP package and update the skill together.
+- Prepare new plans; 0.3.x plans cannot be applied.
+- push-config.sh now requires a reviewed plan and restarts Klipper.
+- check-config.sh validates a local candidate directory, not an arbitrary remote file.
+- Use PRINTER_KLIPPER_DIR for the standard parser; remove the old nonexistent
+  checker path from workspace env files unless you supplied your own checker.
+- Old backups remain readable, but automatic restore requires new verified JSON
+  metadata. Review older backups manually before preparing them as candidates.
+- Read any local mirror edits before the first 0.4.x pull; use --overwrite only
+  after deciding to discard them.
 
-The shell push does not restart Klipper automatically. Review its local backup and
-remote rollback path, then use the guarded restart script when appropriate.
-
-## Development
+## Development And Releases
 
 ```bash
 python3 -m venv .venv
 .venv/bin/python -m pip install -e './mcp/klipper-ops-server[dev]'
 .venv/bin/pytest mcp/klipper-ops-server
 bash tests/test-shell.sh
+.venv/bin/ruff check mcp/klipper-ops-server skills/klipper-ops/scripts scripts
 python3 scripts/validate-project.py
+.venv/bin/python -m build mcp/klipper-ops-server
 ```
 
-Also run the `skill-creator` `quick_validate.py` against
-`skills/klipper-ops` before publication.
+CI runs on Python 3.11 and 3.12, executes CLI and real MCP protocol tests, and
+exercises the remote worker against a local Moonraker/systemd simulator. It also
+downloads a commit-pinned upstream Klipper parser for include validation tests.
+No live printer is needed. These tests do not replace acceptance testing on a
+physical printer; hardware readiness and host-specific permissions still need
+to be verified when connecting a printer.
 
-## Release Contract
+Use GitHub Flow with short-lived branches and PRs into main. Functionality and
+bugfixes get version bumps and releases; docs and process changes use Unreleased.
+Release tags are created from main and equal VERSION exactly. Package, skill,
+marketplace, README, changelog, tag, and GitHub Release versions must agree.
 
-- Use GitHub Flow with short-lived branches and `main` as the primary branch.
-- Release only functionality and bugfixes; docs/process-only changes stay under
-  `Unreleased` unless they accompany functional work.
-- `VERSION`, package metadata, skill metadata, marketplace version/source ref,
-  changelog, README, git tag, and GitHub Release must agree.
-- The release tag has no prefix and exactly equals `VERSION`.
-
-Current version: `0.3.0`.
+Current version: `0.4.0`.

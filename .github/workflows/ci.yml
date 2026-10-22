@@ -11,21 +11,42 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
+          cache-dependency-path: mcp/klipper-ops-server/pyproject.toml
       - name: Install MCP server and tests
         run: python -m pip install -e './mcp/klipper-ops-server[dev]'
       - name: Validate release metadata and shell syntax
         run: python scripts/validate-project.py
       - name: Lint Python
-        run: ruff check mcp/klipper-ops-server && ruff format --check mcp/klipper-ops-server
+        run: |
+          ruff check mcp/klipper-ops-server skills/klipper-ops/scripts scripts
+          ruff format --check mcp/klipper-ops-server skills/klipper-ops/scripts scripts
       - name: Lint shell fallback
-        run: shellcheck --severity=warning skills/klipper-ops/scripts/*.sh skills/klipper-ops/scripts/lib/*.sh tests/test-shell.sh
+        run: shellcheck --severity=warning skills/klipper-ops/scripts/*.sh tests/test-shell.sh
       - name: Test shell fallback
         run: bash tests/test-shell.sh
-      - name: Test MCP server
+      - name: Download pinned official Klipper parser
+        run: |
+          curl --fail --silent --show-error --location --max-time 30 \
+            https://raw.githubusercontent.com/Klipper3d/klipper/f1fb57564fd89511bde3e17aa70af562b3da4f1a/klippy/configfile.py \
+            --output "$RUNNER_TEMP/klipper-configfile.py"
+          echo "KLIPPER_OPS_TEST_CONFIGFILE=$RUNNER_TEMP/klipper-configfile.py" >> "$GITHUB_ENV"
+      - name: Test CLI, MCP, and remote worker
         run: pytest mcp/klipper-ops-server
+      - name: Build sdist and wheel from sdist
+        run: python -m build --no-isolation mcp/klipper-ops-server
+      - name: Verify installed distribution outside checkout
+        run: |
+          python -m pip install --force-reinstall --no-deps mcp/klipper-ops-server/dist/*.whl
+          cd "$RUNNER_TEMP"
+          klipper-ops --version
+          python -c 'from klipper_ops_mcp.server import create_server; import asyncio; assert len(asyncio.run(create_server().list_tools())) == 13'

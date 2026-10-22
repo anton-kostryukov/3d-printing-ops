@@ -7,17 +7,17 @@
       "id": "klipper-ops",
       "name": "klipper-ops",
       "display_name": "Klipper Ops",
-      "description": "Safe, token-efficient Klipper printer host operations through typed MCP tools with portable shell fallbacks for status, bounded logs, config diff, backup, validation, atomic apply, rollback, and recovery.",
-      "shortDescription": "Typed Klipper MCP operations with safe portable fallbacks.",
+      "description": "Klipper host operational workflows paired with a separately installed companion MCP server for bounded diagnostics, config review, backups, validated changes, and recovery.",
+      "shortDescription": "Klipper operational workflows with a companion MCP server.",
       "iconSmall": null,
       "iconLarge": null,
-      "version": "0.3.0",
+      "version": "0.4.0",
       "path": "skills/klipper-ops",
       "repoPath": "skills/klipper-ops",
       "source": {
         "type": "github",
         "repo": "anton-kostryukov/3d-printing-ops",
-        "ref": "0.3.0",
+        "ref": "0.4.0",
         "path": "skills/klipper-ops"
       },
       "categories": [
