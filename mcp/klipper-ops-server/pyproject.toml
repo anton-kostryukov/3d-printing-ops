@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "klipper-ops-mcp"
-version = "0.3.0"
+version = "0.4.0"
 description = "Typed, safety-gated MCP tools for Klipper printer host operations"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,16 +13,21 @@ authors = [{ name = "Anton Kostryukov" }]
 dependencies = ["mcp>=1.27,<2"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.3,<9", "ruff>=0.12,<1"]
+dev = ["pytest>=8.3,<9", "ruff>=0.12,<1", "build>=1.2,<2", "hatchling>=1.27", "editables>=0.5", "PyYAML>=6,<7"]
 
 [project.scripts]
 klipper-ops-mcp = "klipper_ops_mcp.server:main"
+klipper-ops = "klipper_ops_mcp.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/klipper_ops_mcp"]
 
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/README.md", "/LICENSE"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = "-q"
 
 [tool.ruff]
